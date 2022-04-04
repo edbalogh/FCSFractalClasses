@@ -26,7 +26,9 @@ function start(ctx) {
     });
     keepGoing = branches.length > initLength;
   }
-  branches.forEach(b => b.draw(ctx));
+  branches.forEach(b => {
+    b.draw(ctx)
+  });
 }
 
 class Branch {
@@ -55,24 +57,42 @@ class Branch {
 
   calculateEndPosition() {
     const radians = this.angle * Math.PI / 180;
-    this.endPos.x = this.startPos.x + (this.length * Math.cos(radians))
-    this.endPos.y = this.startPos.y - (this.length * Math.sin(radians))
-    console.log(`radians=${radians},x=${this.startPos.x}:${this.endPos.x},y=${this.startPos.y}:${this.endPos.y}`)
+    this.endPos.x = this.startPos.x + Math.floor(this.length * Math.cos(radians))
+    this.endPos.y = this.startPos.y - Math.floor(this.length * Math.sin(radians))
+    // console.log(`radians=${radians},x=${this.startPos.x}:${this.endPos.x},y=${this.startPos.y}:${this.endPos.y}`)
   }
 
   grow() {
     if (!this.canGrow) return [];
-    // console.log(`growing,length=${this.length}`)
-    this.children.push(new Branch(this.endPos, this.length * 0.67, this.angle + 25))
-    this.children.push(new Branch(this.endPos, this.length * 0.67, this.angle - 25))
-    if (this.length < 10) this.children.push(new Leaf(this.endPos));
+    let newGrowth = []
+    if (this.length > 10) {
+      newGrowth = newGrowth.concat(this.getRandomBranches(Math.floor(Math.random()*5)+1))
+    } else {
+      newGrowth.push(new Leaf(this.endPos));
+    }
     this.canGrow = false;
-    return this.children;
+    this.children = this.children.concat(newGrowth)
+    return newGrowth;
+  }
+
+  getRandomBranches(number) {
+    const results = []
+    for (let i = 0; i < number; i++) {
+      const angleAdjustment = Math.floor(Math.random() * 120) - 60;
+      const lengthAdjustment = 0.67 + Math.random() / 10;
+      // add width
+      // add color
+      // add ability to start in a random location on parent branch
+      // console.log(`angleAdjustment: ${angleAdjustment},lengthAdjustment: ${lengthAdjustment}`)
+      results.push(new Branch(this.endPos, this.length * lengthAdjustment, this.angle + angleAdjustment));
+    }
+    return results;
   }
 }
 
 class Leaf {
   canGrow = false;
+  // todo: randomize shade of green and size
   
   constructor(startPos) {
     this.startPos = startPos;
@@ -81,7 +101,7 @@ class Leaf {
   grow() {}
 
   draw(ctx) {
-    console.log(`drawing leaf,x: ${this.startPos.x},y: ${this.startPos.y}`)
+    // console.log(`drawing leaf,x: ${this.startPos.x},y: ${this.startPos.y}`)
     ctx.fillStyle = 'green';
     ctx.fillRect(this.startPos.x, this.startPos.y, 5, 5);
   }
