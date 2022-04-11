@@ -16,7 +16,7 @@ let branches = [];
 function start(ctx) {
   console.log('starting...')
   const startPos = { x: 400, y: 600 };
-  branches.push(new Branch(startPos, 100, 90));
+  branches.push(new Branch(startPos, 200, 90, 7));
   let keepGoing = true;
   while (keepGoing) {
     const initLength = branches.length;
